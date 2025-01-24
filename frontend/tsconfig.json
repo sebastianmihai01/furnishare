@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    /* Basic Options */
+    "target": "ES6",                        // Specify ECMAScript target version (e.g., 'ES5', 'ES6', 'ES2020').
+    "module": "ESNext",                     // Use ESNext module system for modern tools like Webpack.
+    "jsx": "react-jsx",                     // Specify JSX code generation: 'react' for React < 17, 'react-jsx' for React 17+.
+    "lib": ["DOM", "DOM.Iterable", "ESNext"], // Include library files for browser and ESNext features.
+
+    /* Output Options */
+    "outDir": "./build",                    // Specify output folder for compiled JavaScript.
+    "rootDir": "./src",                     // Specify root folder of source files.
+
+    /* Strict Type-Checking Options */
+    "strict": true,                         // Enable all strict type-checking options.
+    "strictNullChecks": true,               // Ensure strict null handling.
+    "strictBindCallApply": true,            // Check argument types in `bind`, `call`, and `apply`.
+    "noImplicitAny": true,                  // Raise error on expressions and declarations with an `any` type.
+
+    /* Module Resolution Options */
+    "moduleResolution": "node",            // Use Node.js-style module resolution.
+    "baseUrl": "./",                       // Base directory for non-relative module imports.
+    "paths": {                             // Aliases for cleaner imports.
+      "@components/*": ["src/components/*"],
+      "@assets/*": ["src/assets/*"],
+      "@utils/*": ["src/utils/*"]
+    },
+    "allowSyntheticDefaultImports": true,  // Allow default imports from modules with no default export.
+    "esModuleInterop": true,               // Enable compatibility for CommonJS and ES modules.
+
+    /* JSX Configuration */
+    "jsxImportSource": "react",            // Ensure compatibility with the JSX runtime (for React 17+).
+
+    /* Type Checking Options */
+    "skipLibCheck": true,                  // Skip type checking for all declaration files.
+    "forceConsistentCasingInFileNames": true, // Enforce consistent casing in file names.
+    
+    /* Experimental Options */
+    "resolveJsonModule": true,             // Allow importing `.json` files.
+    "isolatedModules": true                // Ensure each file is treated as a module (important for React).
+  },
+  "include": ["src"],                      // Include all files in the 'src' folder.
+  "exclude": ["node_modules", "build"]     // Exclude unnecessary folders.
+}
