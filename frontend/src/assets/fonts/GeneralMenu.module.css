@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap');
+
+.menu {
+    color: yellowgreen;
+}
+
+
+body {
+    background: rgb(243, 240, 235);
+    margin: 1em;
+    font-family: 'Poppins';
+}
+
+.navbar{
+    background:white;
+    padding: 1em;
+}

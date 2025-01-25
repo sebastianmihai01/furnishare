@@ -1,0 +1,26 @@
+.form {
+  display:block;
+  text-align:right;
+}
+
+.form button {
+  cursor: pointer;
+  background-color: #c7972f;
+  border: 3px solid #000000;
+  color: white;
+  padding: 0.5em 1em 0.5em 1em;
+  border-radius: 1em;
+  font-size:large;
+  font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+}
+
+
+.form button:hover{
+  background-color: #251108;
+
+}
+.form button:active {
+  background-color: #111811;
+  box-shadow: -2px 5px rgb(95, 72, 72);
+  transform: translateY(4px);
+}
