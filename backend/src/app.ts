@@ -1,18 +1,33 @@
 import express from "express";
 import cors from "cors";
-import authRoutes from "./routes/authRoutes";
-import { errorMiddleware } from "./middlewares/errorMiddleware";
+import http, { METHODS } from "http";
+import util from "util";
+import { off } from "process";
+require("dotenv").config();
 
 const app = express();
-
-// Middleware
+// set CORS -> use only when necessary
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATH");
+  res.setHeader("Acess-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
 app.use(cors());
 app.use(express.json());
+//create SQL connectivity
+(async () => {
+  await setupDatabase();
+  console.log("SQL database running!");
+})();
 
-// Routes
-app.use("/auth", authRoutes);
+const httpServer = http.createServer(app);
 
-// Error Handling
-app.use(errorMiddleware);
-
-export default app;
+/**
+ * @description
+ * WebSocket connection = upgraded persistent HTTP connection
+ */
+app.use(router);
+app.listen(process.env.PORT || 8080, () => {
+  console.log("Express running");
+});

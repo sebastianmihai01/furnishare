@@ -7,3 +7,5 @@ export const config = {
   dbUrl: process.env.DATABASE_URL || "mongodb://localhost:27017/app",
   jwtSecret: process.env.JWT_SECRET || "your_jwt_secret",
 };
+
+export default config;
