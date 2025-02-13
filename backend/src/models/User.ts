@@ -66,3 +66,4 @@ User.init(
     timestamps: true, // Automatically add createdAt and updatedAt
   }
 );
+``
