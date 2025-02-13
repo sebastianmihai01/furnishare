@@ -36,7 +36,9 @@
     
     /* Experimental Options */
     "resolveJsonModule": true,             // Allow importing `.json` files.
-    "isolatedModules": true                // Ensure each file is treated as a module (important for React).
+    "isolatedModules": true,                // Ensure each file is treated as a module (important for React).
+
+    "types": ["node", "jest"]
   },
   "include": ["src"],                      // Include all files in the 'src' folder.
   "exclude": ["node_modules", "build"]     // Exclude unnecessary folders.
