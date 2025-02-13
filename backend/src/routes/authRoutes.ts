@@ -1,9 +1,26 @@
 import { Router } from "express";
-import { login, register } from "../controllers/authController";
+import { authController } from "../controllers/authController";
+import { validate } from "../middlewares/validationMiddleware";
+import { authValidation } from "../validations/authValidation";
+import { rateLimitMiddleware } from "../middlewares/rateLimitMiddleware";
 
 const router = Router();
 
-router.post("/login", login);
-router.post("/register", register);
+router.post(
+  "/register",
+  validate(authValidation.register),
+  authController.register
+);
 
-export default router;
+router.post(
+  "/login",
+  rateLimitMiddleware.auth,
+  validate(authValidation.login),
+  authController.login
+);
+
+router.post("/refresh-token", authController.refreshToken);
+
+router.post("/logout", authController.logout);
+
+export const authRoutes = router;

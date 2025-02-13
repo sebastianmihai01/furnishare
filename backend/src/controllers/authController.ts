@@ -11,17 +11,62 @@ import {
   getStatsQuery,
   postStatsQuery,
 } from "../database/connector";
+import { User } from '../models/User';
+import { ApiError } from '../utils/ApiError';
 require("dotenv").config();
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const token = await loginUser(email, password);
-  res.json({ token });
+
+  const user = await User.findOne({ email });
+  if (!user || !(await user.comparePassword(password))) {
+    throw new ApiError('Invalid credentials', 401);
+  }
+
+  const token = jwt.sign(
+    { id: user._id },
+    process.env.JWT_SECRET || 'your-secret-key',
+    { expiresIn: '30d' }
+  );
+
+  res.json({
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email
+    },
+    token
+  });
 };
 
 export const register = async (req: Request, res: Response) => {
-  const user = await registerUser(req.body);
-  res.status(201).json(user);
+  const { name, email, password } = req.body;
+
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    throw new ApiError('Email already registered', 400);
+  }
+
+  const user = await User.create({
+    name,
+    email,
+    password
+  });
+
+  const token = jwt.sign(
+    { id: user._id },
+    process.env.JWT_SECRET || 'your-secret-key',
+    { expiresIn: '30d' }
+  );
+
+  res.status(201).json({
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email
+    },
+    token
+  });
 };
 
 //@Post

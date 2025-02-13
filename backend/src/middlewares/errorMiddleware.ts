@@ -1,29 +1,33 @@
 import { Request, Response, NextFunction } from "express";
+import { ApiError } from "../utils/ApiError";
+import Logger from "../config/logger";
 
-export interface CustomError extends Error {
-  statusCode?: number;
-  message: string;
-  details?: string;
-}
+export const errorMiddleware = {
+  notFound: (req: Request, res: Response, next: NextFunction) => {
+    const error = new ApiError(`Not Found - ${req.originalUrl}`, 404);
+    next(error);
+  },
 
-export const errorMiddleware = (
-  err: CustomError,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const statusCode = err.statusCode || 500;
-  const message = err.message || "Something went wrong";
+  errorHandler: (
+    err: ApiError,
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const statusCode = err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
 
-  console.error(`[Error]: ${message}`, {
-    details: err.details || null,
-    stack: err.stack,
-  });
+    Logger.error(`Error: ${message}`, {
+      url: req.originalUrl,
+      method: req.method,
+      statusCode,
+      stack: err.stack,
+    });
 
-  res.status(statusCode).json({
-    success: false,
-    statusCode,
-    message,
-    details: err.details || undefined,
-  });
+    res.status(statusCode).json({
+      success: false,
+      message,
+      stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+    });
+  },
 };

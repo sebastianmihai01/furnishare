@@ -1,69 +1,72 @@
-import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../database/sequelize"; // Your Sequelize instance
+import mongoose, { Document, Schema } from "mongoose";
+import bcrypt from "bcryptjs";
+import { CONSTANTS } from "../config/constants";
 
-// Define the TypeScript interface for User
-export interface IUser {
-  id: string;
+export interface IUser extends Document {
+  name: string;
   email: string;
   password: string;
-  name: string;
+  avatar?: string;
   role: "user" | "admin";
-  createdAt?: Date;
-  updatedAt?: Date;
+  isEmailVerified: boolean;
+  lastLogin?: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-// Use `Optional` to define fields that are optional when creating a user
-export interface IUserCreationAttributes
-  extends Optional<IUser, "id" | "role" | "createdAt" | "updatedAt"> {}
-
-// Extend Sequelize's Model class
-export class User
-  extends Model<IUser, IUserCreationAttributes>
-  implements IUser
-{
-  public id!: string; // Primary key
-  public email!: string; // Required field
-  public password!: string; // Required field
-  public name!: string; // Required field
-  public role!: "user" | "admin"; // Enum field with a default value
-  public readonly createdAt!: Date; // Timestamp
-  public readonly updatedAt!: Date; // Timestamp
-}
-
-// Define the User schema
-User.init(
+const UserSchema = new Schema(
   {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4, // Automatically generate UUID
-      primaryKey: true,
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 50,
     },
     email: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      type: String,
+      required: true,
       unique: true,
-      validate: {
-        isEmail: true, // Ensure valid email format
-      },
+      trim: true,
+      lowercase: true,
+      match: [/^\S+@\S+\.\S+$/, "Please enter a valid email"],
     },
     password: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      type: String,
+      required: true,
+      minlength: 8,
     },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
+    avatar: {
+      type: String,
     },
     role: {
-      type: DataTypes.ENUM("user", "admin"), // Restrict values to 'user' or 'admin'
-      allowNull: false,
-      defaultValue: "user",
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    lastLogin: {
+      type: Date,
     },
   },
   {
-    sequelize, // Pass the Sequelize instance
-    tableName: "users", // Table name in the database
-    timestamps: true, // Automatically add createdAt and updatedAt
+    timestamps: true,
   }
 );
-``
+
+UserSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+
+  const salt = await bcrypt.genSalt(CONSTANTS.AUTH.SALT_ROUNDS);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+UserSchema.methods.comparePassword = async function (
+  candidatePassword: string
+): Promise<boolean> {
+  return bcrypt.compare(candidatePassword, this.password);
+};
+
+export const User = mongoose.model<IUser>("User", UserSchema);

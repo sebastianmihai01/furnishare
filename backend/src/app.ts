@@ -1,9 +1,13 @@
-import express from "express";
+import express, { Application } from "express";
 import cors from "cors";
 import http, { METHODS } from "http";
 import util from "util";
 import { off } from "process";
 import router from "./routes";
+import { rateLimitMiddleware } from "./middlewares/rateLimitMiddleware";
+import { errorMiddleware } from "./middlewares/errorMiddleware";
+import { corsConfig } from "./config/cors.config";
+import { config } from "./config/env";
 const cluster = require("cluster");
 const os = require("os");
 require("dotenv").config();
@@ -13,6 +17,55 @@ const helmet = require("helmet"); // Add security headers
 const compression = require("compression"); // Compress responses
 const morgan = require("morgan"); // HTTP request logger
 const rateLimit = require("express-rate-limit"); // Rate limiting
+
+class App {
+  public app: Application;
+
+  constructor() {
+    this.app = express();
+    this.initializeMiddlewares();
+    this.initializeRoutes();
+    this.initializeErrorHandling();
+  }
+
+  private initializeMiddlewares(): void {
+    // Security middlewares
+    this.app.use(helmet());
+    this.app.use(compression());
+    this.app.use(
+      morgan(config.NODE_ENV === "development" ? "dev" : "combined")
+    );
+    this.app.use(rateLimitMiddleware.standard);
+
+    // CORS
+    this.app.use(cors(corsConfig));
+
+    // Body parsing
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: true }));
+
+    // Rate limiting for auth routes
+    this.app.use("/api/auth", rateLimitMiddleware.auth);
+  }
+
+  private initializeRoutes(): void {
+    this.app.use("/api", router);
+
+    // Health check route
+    this.app.get("/health", (req, res) => {
+      res
+        .status(200)
+        .json({ status: "ok", timestamp: new Date().toISOString() });
+    });
+  }
+
+  private initializeErrorHandling(): void {
+    this.app.use(errorMiddleware.notFound);
+    this.app.use(errorMiddleware.errorHandler);
+  }
+}
+
+export default new App().app;
 
 if (cluster.isMaster) {
   const numCPUs = os.cpus().length; // Get the number of CPU cores
