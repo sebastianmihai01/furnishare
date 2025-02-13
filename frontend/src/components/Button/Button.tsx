@@ -1,12 +1,23 @@
 import React from 'react';
-import { StyledButton } from './Button.styles';
-import { ButtonProps } from './Button.types';
+import { Button as MuiButton, ButtonProps as MuiButtonProps } from '@mui/material';
 
-const Button: React.FC<ButtonProps> = ({ children, variant = 'primary', onClick }) => {
+interface ButtonProps extends MuiButtonProps {
+  children: React.ReactNode;
+}
+
+const Button: React.FC<ButtonProps> = ({ children, variant = 'contained', ...props }) => {
   return (
-    <StyledButton variant={variant} onClick={onClick}>
+    <MuiButton
+      variant={variant}
+      sx={{
+        textTransform: 'none',
+        borderRadius: 2,
+        ...props.sx
+      }}
+      {...props}
+    >
       {children}
-    </StyledButton>
+    </MuiButton>
   );
 };
 

@@ -1,35 +1,27 @@
+import React from 'react';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import CssBaseline from '@mui/material/CssBaseline';
+import { BrowserRouter } from 'react-router-dom';
+import { store, persistor } from './stores/store';
+import { AppProviders } from './contexts';
+import AppRoutes from './routes/AppRoutes';
+import ErrorBoundary from './Errors/ErrorBoundary';
 
-import React, { useEffect } from "react";
-import { logger } from "./utils/logger";
-import ErrorBoundary from "./Errors/ErrorBoundary";
-import * as Sentry from "sentry"
-import {BrowserTracing} from "@sentry/tracing"
-
-const App = () => {
-
-  useEffect(() => {
-    logger.info("React App has started.");
-  }, []);
-
-  const handleError = () => {
-    try {
-      throw new Error("Simulated error!");
-    } catch (error) {
-      logger.error(error.message);
-    }
-  };
-
-  window.addEventListener("error", (event) => {
-  console.error("Uncaught Error:", event.error);
-  // Log error to an external monitoring service
-});
-
+const App: React.FC = () => {
   return (
-    <React.Fragment>
-      <ErrorBoundary>
-        <LandingPage/>
-      </ErrorBoundary>
-    </React.Fragment>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <BrowserRouter>
+          <AppProviders>
+            <CssBaseline />
+            <ErrorBoundary>
+              <AppRoutes />
+            </ErrorBoundary>
+          </AppProviders>
+        </BrowserRouter>
+      </PersistGate>
+    </Provider>
   );
 };
 

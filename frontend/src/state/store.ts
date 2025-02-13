@@ -1,22 +1,27 @@
-import { applyMiddleware, createStore } from "redux";
-import { configureStore } from "@reduxjs/toolkit";
-import { persistReducer, persistStore } from 'redux-persist';
+import { configureStore } from '@reduxjs/toolkit';
+import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import reducer from "./reducer";
-import thunk from "redux-thunk";
+import { rootReducer } from './rootReducer';
 
-// persistance with redux toolkit
 const persistConfig = {
-    key: 'root',
-    storage,
-}
+  key: 'furnishare',
+  storage,
+  whitelist: ['auth', 'cart'], // Only persist these reducers
+};
 
-// persistent reducer
-const persistedReducer = persistReducer(persistConfig, reducer)
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-// set up Redux store and wrap the Provider component
 export const store = configureStore({
-    reducer: persistedReducer
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+      },
+    }),
 });
 
-export const persistor = persistStore(store)
+export const persistor = persistStore(store);
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch; 
